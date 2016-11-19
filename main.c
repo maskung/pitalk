@@ -43,7 +43,7 @@ int main() {
         pid_t qid = fork();  
 
         if (qid == 0) {         // speak hour number
-            talknumber(20); 
+            talknumber(17); 
             exit(127);
         } else {
             waitpid(qid,0,0);   //wait for child to exit 
@@ -59,7 +59,7 @@ int main() {
                 pid_t sid = fork();
                 
                 if(sid == 0 ) {    
-                    talknumber(20);  //speak  natee
+                    talknumber(34);  //speak  natee
                 } else {
                     waitpid(sid,0,0);  //wait for child to exit 
                     static char *argv[] = {"mpg321","min.mp3" , NULL};
@@ -87,7 +87,6 @@ void talknumber(int number) {
     char firstdigitvoice[30];
     char seconddigitvoice[30];
 
-    //const char *strnumber[] = {"zero","one","two","three","four","five","six","seven","eight","nine","ten"}; 
     seconddigit = number/10;
     if (seconddigit == 1) {
         sprintf(seconddigitvoice,"10.mp3");
@@ -96,6 +95,23 @@ void talknumber(int number) {
     if (seconddigit == 2) {
         sprintf(seconddigitvoice,"20.mp3");
     } 
+
+    if (seconddigit == 3) {
+        sprintf(seconddigitvoice,"30.mp3");
+    } 
+
+    if (seconddigit == 4) {
+        sprintf(seconddigitvoice,"40.mp3");
+    } 
+
+    if (seconddigit == 5) {
+        sprintf(seconddigitvoice,"50.mp3");
+    } 
+
+    if (seconddigit == 6) {
+        sprintf(seconddigitvoice,"60.mp3");
+    } 
+
     // find first digit
     firstdigit  = number%10;
 
@@ -124,8 +140,28 @@ void talknumber(int number) {
             execv("/usr/bin/mpg321",stargv);
         }
     }
-    
+
+}
+
+/****************************
+ * talk action 
+ * speak specfic acition by order number
+ */
+void speakaction(int order) {
+    char actionvoice[10];
+
+    pid_t pid = fork();
+
+    sprintf(actionvoice,"action%d.mp3",order);
     
 
+    if (pid == 0 ) { // child process success fork 
+        // speak secondigit
+        char *argv[] = {"mpg321",actionvoice , NULL};
+        execv("/usr/bin/mpg321",argv);
+    } else {
+            waitpid(pid,0,0);  //wait for child to exit 
+
+    }
 }
 
