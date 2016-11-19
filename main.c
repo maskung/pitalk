@@ -14,16 +14,36 @@
 
 // declare function
 void talknumber(int number);
+void speakaction(int order);
 
 int main() { 
+
+    time_t now;
+    struct tm *now_tm;
+    int hour;
+    int min;
 
     
     // raed configuration file
 
     // find the current time
-    //time_t seconds = time(NULL);
+    now = time(NULL);
+    now_tm = localtime(&now);
+    hour = now_tm->tm_hour;
+    min = now_tm->tm_min;
 
-    //printf("%ld\n",seconds);
+
+    
+    /*unsigned char hour;
+    unsigned char min;
+
+    const char data[] = "17:59";
+    char *ep;
+
+    hour = (unsigned char)strtol(data, &ep, 10);
+    min = (unsigned char)strtol(ep+1, &ep, 10);
+    */
+
 
     // matching the time and command
 
@@ -34,7 +54,7 @@ int main() {
 
     // speak leader
     if (pid == 0 ) { // child process success fork 
-        static char *argv[] = {"mpg321","leading.mp3" , NULL};
+        static char *argv[] = {"mpg321","leading.mp3" ,"-q", NULL};
         execv("/usr/bin/mpg321",argv);
         exit(127);
     } else {  // parent process 
@@ -43,14 +63,14 @@ int main() {
         pid_t qid = fork();  
 
         if (qid == 0) {         // speak hour number
-            talknumber(17); 
+            talknumber(hour); 
             exit(127);
         } else {
             waitpid(qid,0,0);   //wait for child to exit 
             pid_t rid = fork();
 
             if (rid == 0 ) {    //speak nalika
-                static char *argv[] = {"mpg321","hour.mp3" , NULL};
+                static char *argv[] = {"mpg321","hour.mp3","-q", NULL};
                 execv("/usr/bin/mpg321",argv);
                 exit(127);
 
@@ -58,12 +78,21 @@ int main() {
                 waitpid(rid,0,0);  //wait for child to exit 
                 pid_t sid = fork();
                 
-                if(sid == 0 ) {    
-                    talknumber(34);  //speak  natee
+                if(sid == 0 ) {       //speak natee
+                    talknumber(min);  
                 } else {
                     waitpid(sid,0,0);  //wait for child to exit 
-                    static char *argv[] = {"mpg321","min.mp3" , NULL};
-                    execv("/usr/bin/mpg321",argv);
+                    
+                    pid_t tid = fork();
+
+                    if (tid == 0) {  //speak action
+                        static char *argv[] = {"mpg321","min.mp3" ,"-q", NULL};
+                        execv("/usr/bin/mpg321",argv);
+                    } else {
+                        waitpid(tid,0,0);
+                        speakaction(2); 
+
+                    }
                 }
 
             } 
@@ -73,9 +102,6 @@ int main() {
     
 
     return 0;
-}
-
-void timetalk() {
 }
 
 // get the number from interger and translate to voice corsepond sound
@@ -128,7 +154,7 @@ void talknumber(int number) {
 
     if (pid == 0 ) { // child process success fork 
         // speak secondigit
-        char *ndargv[] = {"mpg321",seconddigitvoice , NULL};
+        char *ndargv[] = {"mpg321",seconddigitvoice ,"-q", NULL};
         execv("/usr/bin/mpg321",ndargv);
     } else {
         waitpid(pid,0,0);  //wait for child to exit 
@@ -136,7 +162,7 @@ void talknumber(int number) {
         // speak firstdigit
         // if firstdigit is 0 dont speak
         if (number%10 != 0) {
-            char *stargv[] = {"mpg321",firstdigitvoice , NULL};
+            char *stargv[] = {"mpg321",firstdigitvoice ,"-q", NULL};
             execv("/usr/bin/mpg321",stargv);
         }
     }
@@ -150,18 +176,18 @@ void talknumber(int number) {
 void speakaction(int order) {
     char actionvoice[10];
 
-    pid_t pid = fork();
+    //pid_t pid = fork();
 
     sprintf(actionvoice,"action%d.mp3",order);
     
 
-    if (pid == 0 ) { // child process success fork 
+    //if (pid == 0 ) { // child process success fork 
         // speak secondigit
         char *argv[] = {"mpg321",actionvoice , NULL};
         execv("/usr/bin/mpg321",argv);
-    } else {
-            waitpid(pid,0,0);  //wait for child to exit 
+   // } else {
+    //        waitpid(pid,0,0);  //wait for child to exit 
 
-    }
+    //}
 }
 
