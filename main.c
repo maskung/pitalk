@@ -43,7 +43,7 @@ int main() {
         pid_t qid = fork();  
 
         if (qid == 0) {         // speak hour number
-            talknumber(11); 
+            talknumber(20); 
             exit(127);
         } else {
             waitpid(qid,0,0);   //wait for child to exit 
@@ -59,7 +59,7 @@ int main() {
                 pid_t sid = fork();
                 
                 if(sid == 0 ) {    
-                    talknumber(31);  //speak  natee
+                    talknumber(20);  //speak  natee
                 } else {
                     waitpid(sid,0,0);  //wait for child to exit 
                     static char *argv[] = {"mpg321","min.mp3" , NULL};
@@ -96,9 +96,17 @@ void talknumber(int number) {
     if (seconddigit == 2) {
         sprintf(seconddigitvoice,"20.mp3");
     } 
-
+    // find first digit
     firstdigit  = number%10;
-    sprintf(firstdigitvoice,"%d.mp3",firstdigit);
+
+    //if first digit is 1 call ed 
+    if (number > 10 && firstdigit == 1 ) {
+        sprintf(firstdigitvoice,"1.1.mp3");
+    } else {
+        sprintf(firstdigitvoice,"%d.mp3",firstdigit);
+    }
+
+    
 
     pid_t pid = fork();
 
@@ -108,10 +116,13 @@ void talknumber(int number) {
         execv("/usr/bin/mpg321",ndargv);
     } else {
         waitpid(pid,0,0);  //wait for child to exit 
-
+        
         // speak firstdigit
-        char *stargv[] = {"mpg321",firstdigitvoice , NULL};
-        execv("/usr/bin/mpg321",stargv);
+        // if firstdigit is 0 dont speak
+        if (number%10 != 0) {
+            char *stargv[] = {"mpg321",firstdigitvoice , NULL};
+            execv("/usr/bin/mpg321",stargv);
+        }
     }
     
     
